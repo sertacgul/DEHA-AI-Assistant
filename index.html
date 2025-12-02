@@ -73,9 +73,9 @@
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        glass-panel { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
-        .highlight-text { background-color: #facc15; color: #000; font-weight: bold; padding: 0 2px; border-radius: 2px; box-shadow: 0 0 5px #facc15; }
+        .highlight-text { background-color: #facc15; color: #000; font-weight: bold; padding: 0 2px; border-radius: 2px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .perspective-1000 { perspective: 1000px; }
         .transform-style-3d { transform-style: preserve-3d; }
@@ -88,37 +88,27 @@
         .sidebar-open { transform: translateX(0); }
         
         /* Mermaid / Diyagram Özelleştirmeleri */
-        #diagram-container { 
-            /* Flex center yerine block yapıp margin ile ortalamayı deniyoruz ki scroll çalışsın */
-            display: block; 
-            width: 100%;
-            height: 100%;
-            padding: 80px;
-            overflow: auto; /* Scroll mobilde önemli */
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .mermaid { 
-            background-color: #f8fafc;
-            padding: 20px;
-            border-radius: 8px;
-            min-width: 2000px; /* A3 Genişlik */
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-        }
-
-        .mermaid svg { 
-            max-width: none !important; 
-            font-family: 'Inter', sans-serif !important;
-        }
-        
+       #diagram-container { display: block; width: 100%; height: 100%; padding: 20px; overflow: auto; -webkit-overflow-scrolling: touch; }
+        .mermaid { background-color: #f8fafc; padding: 20px; border-radius: 8px; min-width: 2000px; box-shadow: 0 0 50px rgba(0,0,0,0.5); display: flex; justify-content: center; }
+        .mermaid svg { max-width: none !important; font-family: 'Inter', sans-serif !important; }
         .node rect, .node circle, .node polygon { stroke-width: 3px !important; }
         .nodeLabel { font-size: 24px !important; font-weight: bold !important; }
         .edgeLabel { font-size: 18px !important; background-color: white !important; padding: 4px; }
-        
-        /* Dokunmatik tepki iyileştirmesi */
         button { touch-action: manipulation; }
+            
+         /* --- YATAY MOD (LANDSCAPE) ÖZEL AYARLARI --- */
+        @media (orientation: landscape) {
+            /* Yatay modda sol menüyü (Reaktör) daralt, sağ tarafı genişlet */
+            #left-panel { width: 25% !important; } 
+            #right-panel { width: 75% !important; }
+            
+            /* Header'ı küçült */
+            header { height: 3rem !important; }
+            header h1 { font-size: 1rem !important; }
+            
+            /* Alt butonları biraz daha sıkıştır */
+            #control-panel { padding: 0.5rem !important; }
+        }   
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden relative">
@@ -166,7 +156,7 @@
             <div class="flex-1 relative bg-slate-900 overflow-hidden group cursor-default">
                 <canvas id="knowledge-graph" class="absolute inset-0 w-full h-full"></canvas>
                 <div class="absolute top-4 left-4 bg-black/50 p-2 rounded text-xs text-slate-400 pointer-events-none select-none z-10 border border-white/10">
-                    <i class="fa-solid fa-network-wired mr-1 text-indigo-400"></i> DEHA Yapay Sinir Ağı
+                    <i class="fa-solid fa-network-wired mr-1 text-indigo-400"></i> DEHA Yapay Sinir Ağı Reaktörü
                 </div>
                 <div id="doc-list-overlay" class="absolute bottom-4 left-4 right-4 max-h-60 overflow-y-auto glass-panel rounded-lg p-3 opacity-90 transition-opacity duration-300 z-20">
                     <h3 class="text-xs font-bold text-slate-300 mb-2 uppercase tracking-wider flex justify-between items-center">
@@ -230,8 +220,8 @@
                 <div class="flex gap-4">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex-shrink-0 flex items-center justify-center"><i class="fa-solid fa-robot text-white text-xs"></i></div>
                     <div class="glass-panel p-4 rounded-r-xl rounded-bl-xl max-w-[90%]">
-                        <p class="text-slate-300">Merhaba! Ben DEHA v17.8</p>
-                        <p class="text-slate-400 text-sm mt-1">Diyagram hataları giderildi. Ekrana tıklayarak kapatabilirsin.</p>
+                        <p class="text-slate-300">Merhaba! Ben DEHA AI</p>
+                        <p class="text-slate-400 text-sm mt-1">Diyagramı ekrana tıklayarak kapatabilirsin.</p>
                     </div>
                 </div>
             </div>
@@ -239,19 +229,19 @@
             <div class="p-4 bg-slate-900 border-t border-slate-700 flex-shrink-0 safe-area-pb">
                 <div class="flex flex-col gap-1 mb-2">
                     <div class="grid grid-cols-3 gap-2">
-                         <button id="start-quiz-btn" class="bg-yellow-600 hover:bg-yellow-500 text-white text-xs py-2 rounded shadow-md transition flex items-center justify-center gap-2 font-semibold"><i class="fa-solid fa-clipboard-question"></i> Quiz</button>
-                        <button id="prepare-cards-btn" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs py-2 rounded shadow-md transition flex items-center justify-center gap-2 font-semibold"><i class="fa-solid fa-layer-group"></i> Kartlar</button>
-                        <button id="concepts-btn" class="bg-pink-600 hover:bg-pink-500 text-white text-xs py-2 rounded shadow-md transition flex items-center justify-center gap-2 font-semibold"><i class="fa-solid fa-tags"></i> Kavram</button>
+                         <button id="start-quiz-btn" class="bg-yellow-600 hover:bg-yellow-500 text-white text-[9px] py-2 rounded shadow-md transition flex items-center justify-center gap-2 font-semibold"><i class="fa-solid fa-clipboard-question"></i> Quiz</button>
+                        <button id="prepare-cards-btn" class="bg-cyan-600 hover:bg-cyan-500 text-white text-[9px] py-2 rounded shadow-md transition flex items-center justify-center gap-2 font-semibold"><i class="fa-solid fa-layer-group"></i> Kartlar</button>
+                        <button id="concepts-btn" class="bg-pink-600 hover:bg-pink-500 text-white text-[9px] py-2 rounded shadow-md transition flex items-center justify-center gap-2 font-semibold"><i class="fa-solid fa-tags"></i> Kavram</button>
                         
-                        <button id="podcast-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs py-2 rounded shadow-md transition flex items-center justify-center gap-2 font-semibold"><i class="fa-solid fa-microphone-lines"></i> Podcast</button>
-                        <button id="critique-btn" class="bg-rose-600 hover:bg-rose-500 text-white text-xs py-2 rounded shadow-md transition flex items-center justify-center gap-2 font-semibold"><i class="fa-solid fa-magnifying-glass-chart"></i> Analiz</button>
-                        <button id="diagram-btn" class="bg-orange-600 hover:bg-orange-500 text-white text-xs py-2 rounded shadow-md transition flex items-center justify-center gap-2 font-semibold"><i class="fa-solid fa-sitemap"></i> Diyagram</button>
+                        <button id="podcast-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[9px] py-2 rounded shadow-md transition flex items-center justify-center gap-2 font-semibold"><i class="fa-solid fa-microphone-lines"></i> Podcast</button>
+                        <button id="critique-btn" class="bg-rose-600 hover:bg-rose-500 text-white text-[9px] py-2 rounded shadow-md transition flex items-center justify-center gap-2 font-semibold"><i class="fa-solid fa-magnifying-glass-chart"></i> Analiz</button>
+                        <button id="diagram-btn" class="bg-orange-600 hover:bg-orange-500 text-white text-[9px] py-2 rounded shadow-md transition flex items-center justify-center gap-2 font-semibold"><i class="fa-solid fa-sitemap"></i> Diyagram</button>
                         
-                        <button id="suggest-btn" class="col-span-3 bg-slate-700 hover:bg-slate-600 text-white text-xs py-1 rounded shadow-md transition flex items-center justify-center gap-2"><i class="fa-regular fa-lightbulb"></i> Soru Öner</button>
+                        <button id="suggest-btn" class="col-span-3 bg-slate-700 hover:bg-slate-600 text-white text-[9px] py-1 rounded shadow-md transition flex items-center justify-center gap-2"><i class="fa-regular fa-lightbulb"></i> Soru Öner</button>
                     </div>
                     <div class="flex gap-2 h-6 mt-1">
-                        <div class="flex-1 text-center"><button id="btn-saved-quiz" class="hidden text-[10px] text-yellow-400 hover:text-yellow-200 border border-yellow-600/30 rounded px-2 py-0.5 w-full">Kayıtlı Quiz</button></div>
-                         <div class="flex-1 text-center"><button id="btn-saved-cards" class="hidden text-[10px] text-cyan-400 hover:text-cyan-200 border border-cyan-600/30 rounded px-2 py-0.5 w-full">Kayıtlı Kartlar</button></div>
+                        <div class="flex-1 text-center"><button id="btn-saved-quiz" class="hidden text-[9px] text-yellow-400 hover:text-yellow-200 border border-yellow-600/30 rounded px-2 py-0.5 w-full">Kayıtlı Quiz</button></div>
+                         <div class="flex-1 text-center"><button id="btn-saved-cards" class="hidden text-[9px] text-cyan-400 hover:text-cyan-200 border border-cyan-600/30 rounded px-2 py-0.5 w-full">Kayıtlı Kartlar</button></div>
                     </div>
                 </div>
                 <div class="flex gap-2 mb-2 justify-between items-center">
